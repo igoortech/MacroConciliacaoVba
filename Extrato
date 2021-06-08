@@ -1,0 +1,97 @@
+Sub Extracao_Cash_Logic()
+    Dim Rng As Range
+    Dim sht As Worksheet
+    Dim ValorL As String
+    
+    Dia = Format(Date, "dd")
+    'MsgBox (Dia)
+    Mes = Format(Date, "mm")
+    'MsgBox (Mes)
+    Ano = Format(Date, "yyyy")
+    'MsgBox (Ano)
+    'Mes = Format(Date("d", Date), "mm"))
+    Dim LastRow As Integer
+    'recebe o caminho do arquivo baixado
+    
+     
+    'Abre o arquivo Moviementos.csv para converter para xlsx
+'#############################################################################
+    Workbooks.Open ("G:\Meu Drive\Setor_Financeiro\Latam\" & Ano & "\Template_Bancos\movimientos.csv"), Local:=True
+      
+    'ativa a aba movimentos
+    Sheets("movimientos").Activate
+      
+    Set K = Range("K1").CurrentRegion
+    Set sht = Sheets("movimientos")
+    
+    '##### DEVE POR PAGO OBLIGACION EFECTIVO E COPIA O VALORES PARA CONCILIACAÇÃO BASE DO MÊS
+    ValorL = "PAGO OBLIGACION EFECTIVO"
+    'MsgBox (ontem)
+    'insere no filtro campo a6 o valor ontem
+    'Set RangeCol = ActiveSheet.Range("A6:A" & Range("A6").End(xlDown).Rows.Count + 1)
+    K.AutoFilter Field:=12, Criteria1:=ValorL, Operator:=xlAnd
+    
+    'vai para ultima celula com contéudo desconsiderando o header
+      If ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row > 1 Then
+      
+            'SELECIONA CONTEÚDO VISÍVEL E COPIA
+             'MsgBox "Records"
+            '=== OBTÉM A ÚLTIMA LINHA DA PLANILHA
+            lRow = sht.Cells(sht.Rows.Count, 1).End(xlUp).Row
+            '=== SELECIONA DE G1 ATE AJ DESCONSIDERANDO O HEADER E COPIA
+            sht.Range("G1:AJ" & lRow).Offset(1).Copy
+            
+            '===ABRE O ARQUIVO BASE DE CONCILIAÇÃO PARA REALIZAR INSERÇÃO CONSIDERANDO SEMPRE A ULTIMA LINHA VAZIA DA TABELA
+           'Caminho dinâmico
+           file = ("G:\Meu Drive\Setor_Financeiro\Latam\" & Ano & "\" & Mes & "\Banco_Iprocessi\CONCILIATION_Banco_Iprocessi.xlsm")
+           'abre A conciliacao
+           Workbooks.Open (file)
+           'ativa a aba extrato cash L
+           Sheets("Extracto Cash L").Activate
+           'Vai para ultima celula vazia e seleciona
+            Range("B" & Rows.Count).End(xlUp).Offset(1).Select
+            'Cola o conteúdo copiado
+            ActiveSheet.Paste
+            
+            '====ATIVA O ARQUIVO FILTRADO E COPIA A COLUNA DATA
+            Windows("movimientos.csv").Activate
+            '=== SELECIONA COLUNA FECHA  DE B ATE A ÚTLIMA LINHA DESCONSIDERANDO O HEADER E COPIA
+            sht.Range("B1:B" & lRow).Offset(1).Copy
+              
+            '====ATIVA O A PLANILHA BASE CONCILIAÇÃO E COLA CONTEUDO
+            Windows("CONCILIATION_Banco_Iprocessi.xlsm").Activate
+             'Vai para ultima celula vazia e seleciona
+            Range("A" & Rows.Count).End(xlUp).Offset(1).Select
+            'Cola o conteúdo copiado
+            ActiveSheet.Paste
+            
+            '==INSERE DATA NA ABA CONCIL
+             
+             'ativa a aba CONCIL
+             Sheets("CONCIL").Activate
+             'obtem data de ontem
+             ontem = Format(DateAdd("d", -1, Date), "dd/mm/yyyy")
+             'Vai para ultima celula vazia e seleciona
+              Range("A" & Rows.Count).End(xlUp).Offset(1).Select
+              Selection.Value = ontem
+             
+    
+            'fecha planilha E SALVA
+            ActiveWorkbook.Close SaveChanges:=True
+            
+            a = 1
+        
+      Else
+        'MsgBox "Não existem novos clientes a serem cadastrados"
+        'desativa o filtro
+         ActiveSheet.AutoFilterMode = False
+        'fecha planilha sem salvar
+         ActiveWorkbook.Close SaveChanges:=False
+        'encerrar a macro
+        Exit Sub
+        
+    End If
+
+    
+End Sub
+ 
