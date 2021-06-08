@@ -1,0 +1,51 @@
+Sub EXTRATO_FLEET_EXTRATO_IPROCESSI()
+    Dim Rng As Range
+    Dim LastRow As Integer
+    Dim Rng_Del As Range
+    'recebe o caminho do arquivo baixado
+    file = ActiveWorkbook.Path & "\recaudos.xlsx"
+    'ativa a planilha pelo nome
+    Active = ActiveWorkbook.Name
+    
+
+    Workbooks.Open (file)
+    Base = ActiveWorkbook.Name
+    'abre o arquivo extrato que foi baixo
+    
+    'ativa o extrato que foi baixado
+    Sheets("Worksheet").Activate
+
+
+    'Apply autofilter to data rage
+    'Note: data must start in cell A1 for this macro to work
+    Set Rng = Range("A1").CurrentRegion
+
+    
+    
+    If Planilha1.AutoFilterMode = True Then
+        Planilha1.AutoFilter.ShowAllData
+    End If
+    
+    'Filtra por campos que contém vazio ou branco
+    Rng.AutoFilter Field:=10, Criteria1:="="
+    
+    'vai para ultima celula com contéudo desconsiderando o header
+      If ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row > 1 Then
+             'MsgBox "Records"
+             'Delete visible rows assuming there’s nothing else below the last row
+             Rng.Offset(1, 0).SpecialCells(xlCellTypeVisible).EntireRow.Delete
+             ActiveSheet.AutoFilterMode = False
+      Else
+      
+        'MsgBox "Não existe nenhuma data compatível com este Filtro"
+        'desativa o filtro
+         ActiveSheet.AutoFilterMode = False
+       
+    End If
+
+    
+    Call Filtra_Insere
+    
+    Call Extracao_Cash_Logic
+       
+End Sub
