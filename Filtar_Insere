@@ -1,0 +1,80 @@
+Sub Filtra_Insere()
+    '##########################################
+    
+     Dia = Format(Date, "dd")
+    'MsgBox (Dia)
+    Mes = Format(Date, "mm")
+    'MsgBox (Mes)
+    Ano = Format(Date, "yyyy")
+    'MsgBox (Ano)
+    'Mes = Format(Date("d", Date), "mm"))
+    Dim LastRow As Integer
+    'recebe o caminho do arquivo baixado
+    
+    '
+    '===============================================
+    'ativa o extrato que foi baixado
+    Sheets("Worksheet").Activate
+    'Apply autofilter to data rage
+    'Note: range da coluna data
+
+
+    Set Rng = Range("D1").CurrentRegion
+    
+    'verifica se o filtro esta ativado
+    If Planilha1.AutoFilterMode = True Then
+        Planilha1.AutoFilter.ShowAllData
+    End If
+    
+    'obtem data de ontem
+    ontem = Format(DateAdd("d", -1, Date), "yyyy-mm-dd")
+    'MsgBox (ontem)
+    'insere filtro de data a partir da D1 ...
+    'criterea esta com as configuracoes para trazer tudo que contenha a data
+    Rng.AutoFilter Field:=4, Criteria1:="=*" & ontem & "*", Operator:=xlAnd
+    
+    'vai para ultima celula com contéudo desconsiderando o header
+    If ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row > 1 Then
+             'MsgBox "Records"
+              'pega o intervadlo de b2 até L, dar um seta para baixa na linha e copia
+              Range("A2:L" & Range("A2").End(xlDown).Row).Copy
+    Else
+      
+            'MsgBox "Não existe nenhuma data compatível com este Filtro"
+            'desativa o filtro
+             ActiveSheet.AutoFilterMode = False
+         
+            'Finaliza a macro caso não haja registros neste dia
+         
+             Exit Sub
+         
+    End If
+    
+    
+   
+    
+    
+    'Abre a planilha conciliacao
+    'Tornar este caminho da macro dinâmico
+    Workbooks.Open ("G:\Meu Drive\Setor_Financeiro\Latam\" & Ano & "\" & Mes & "\Banco_Iprocessi\CONCILIATION_Banco_Iprocessi.xlsm")
+    'Workbooks.Open ("G:\Meu Drive\Setor_Financeiro\Latam\2021\05\Banco_Iprocessi\CONCILIATION_Banco_Iprocessi.xlsm")
+    
+    'ativa o extrato que foi baixado
+    Sheets("FLEET").Activate
+    
+    'pega a planilha ativa atual
+   ' Workbooks(Active).Activate
+   'Vai para ultima celula vazia.
+    Range("B" & Rows.Count).End(xlUp).Offset(1).Select
+    'seleciona o intervaldo A1
+    'Range("A1").Select
+    'cola o conteudo copiado a partir do intervalado a1
+    ActiveSheet.Paste
+    ActiveWorkbook.Save
+    ActiveWorkbook.Close
+    
+    
+    'MsgBox ("chegou aqui")
+
+    
+End Sub
